@@ -93,7 +93,7 @@ def on_disconnect(client, userdata, rc, properties):
         _log("warn", f"MQTT disconnected, rc={rc}")
 
 
-def on_message(client, userdata, msg, properties):
+def on_message(client, userdata, msg):
     try:
         data = json.loads(msg.payload.decode("utf-8"))
         action = data.get("action")
