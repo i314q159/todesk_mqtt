@@ -80,7 +80,7 @@ def load_toml(cfg_path):
 client = None
 
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties):
     if rc == 0:
         _log("info", f"MQTT connected, subscribe {userdata['sub_topic']}")
         client.subscribe(userdata["sub_topic"], qos=1)
@@ -88,7 +88,7 @@ def on_connect(client, userdata, flags, rc):
         _log("error", f"mqtt connect fail rc={rc}")
 
 
-def on_message(client, userdata, msg):
+def on_message(client, userdata, msg, properties):
     try:
         data = json.loads(msg.payload.decode("utf-8"))
         action = data.get("action")
@@ -138,7 +138,12 @@ def main():
     userdata = {"sub_topic": sub_topic, "pub_topic": pub_topic}
 
     global client
-    client = mqtt.Client(client_id=f"ros_todesk_{dev_id}", userdata=userdata)
+    client = mqtt.Client(
+        client_id=f"ros_todesk_{dev_id}",
+        userdata=userdata,
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
+    )
+
     if m_user:
         client.username_pw_set(m_user, m_pass)
 
