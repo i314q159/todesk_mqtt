@@ -18,61 +18,16 @@ else:
     import tomli as tomllib
 
 
-class _DevFilter(logging.Filter):
-    def __init__(self, dev_id):
-        super().__init__()
-        self.dev_id = dev_id
-
-    def filter(self, record):
-        record.dev_id = self.dev_id
-        return True
-
-
-def _setup_file_log(dev_id=""):
-    # 日志统一写到 ../log/（相对 scripts 目录，即 src/todesk_mqtt/log/）
-    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "log")
-    os.makedirs(log_dir, exist_ok=True)
-    import logging.handlers
-
-    fh = logging.handlers.TimedRotatingFileHandler(
-        os.path.join(log_dir, "todesk_mqtt.log"),
-        when="midnight",
-        interval=1,
-        backupCount=7,
-        encoding="utf-8",
-    )
-    fh.setFormatter(
-        logging.Formatter("%(asctime)s [%(levelname)s] [dev=%(dev_id)s] %(message)s")
-    )
-    log = logging.getLogger("todesk_mqtt")
-    log.setLevel(logging.INFO)
-    log.addFilter(_DevFilter(dev_id))
-    log.addHandler(fh)
-    return log
-
-
-LOG = None
-DEV_ID = ""
-
-
-# 双写：屏幕（rospy）+ 文件（log/todesk_mqtt.log）
 def _log(level, msg):
     log_map = {
-        "debug": ("debug", "logdebug"),
-        "info": ("info", "loginfo"),
-        "warn": ("warning", "logwarn"),
-        "error": ("error", "logerr"),
-        "fatal": ("critical", "logfatal"),
+        "debug": rospy.logdebug,
+        "info": rospy.loginfo,
+        "warn": rospy.logwarn,
+        "error": rospy.logerr,
+        "fatal": rospy.logfatal,
     }
-    if level not in log_map:
-        return
-
-    log_lv, rospy_lv = log_map[level]
-    if LOG is not None:
-        getattr(LOG, log_lv)(msg)
-
-    tag = f"[dev={DEV_ID}] " if DEV_ID else ""
-    getattr(rospy, rospy_lv)(f"{tag}{msg}")
+    if level in log_map:
+        log_map[level](msg)
 
 
 def load_toml(cfg_path):
@@ -128,7 +83,7 @@ def on_message(client, userdata, msg):
 
 
 def main():
-    global LOG, DEV_ID
+    global client
     rospy.init_node("todesk_mqtt")
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cfg_file = os.path.join(script_dir, "config.toml")
@@ -139,8 +94,6 @@ def main():
 
     mqtt_cfg = cfg["mqtt"]
     dev_id = mqtt_cfg["dev_id"]
-    DEV_ID = dev_id
-    LOG = _setup_file_log(dev_id)
     broker = mqtt_cfg["broker"]
     port = int(mqtt_cfg["port"])
     m_user = mqtt_cfg.get("user", "")
@@ -152,7 +105,6 @@ def main():
 
     userdata = {"sub_topic": sub_topic, "pub_topic": pub_topic}
 
-    global client
     client = mqtt.Client(
         client_id=f"ros_todesk_{dev_id}",
         userdata=userdata,
@@ -174,8 +126,13 @@ def main():
         return
 
     client.loop_start()
-    rospy.spin()
-    client.loop_stop()
+    _log("info", "todesk mqtt ros node started")
+    try:
+        rospy.spin()
+    finally:
+        _log("info", "node shutdown, stop mqtt loop")
+        client.loop_stop()
+        client.disconnect()
 
 
 if __name__ == "__main__":
