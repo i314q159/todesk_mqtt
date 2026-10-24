@@ -97,15 +97,16 @@ def on_message(client, userdata, msg):
             _log("warn", f"Receive restart todeskd command seq={seq}")
             ret = subprocess.run(
                 ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
-                capture_output=True,
-                text=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
             )
             if ret.returncode == 0:
                 res = {"result": "ok", "msg": "restart triggered", "seq": seq}
                 _log("info", "todeskd restart ok")
             else:
-                res = {"result": "fail", "msg": ret.stderr, "seq": seq}
-                _log("error", f"restart fail: {ret.stderr}")
+                res = {"result": "fail", "msg": "systemctl return non-zero", "seq": seq}
+                _log("error", "restart fail: systemctl return non-zero")
+
             client.publish(userdata["pub_topic"], json.dumps(res), qos=1)
     except Exception as e:
         _log("error", f"parse mqtt msg err: {e}")
