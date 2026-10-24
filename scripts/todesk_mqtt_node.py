@@ -88,6 +88,11 @@ def on_connect(client, userdata, flags, rc, properties):
         _log("error", f"mqtt connect fail rc={rc}")
 
 
+def on_disconnect(client, userdata, rc, properties):
+    if rc != 0:
+        _log("warn", f"MQTT disconnected, rc={rc}")
+
+
 def on_message(client, userdata, msg, properties):
     try:
         data = json.loads(msg.payload.decode("utf-8"))
@@ -149,6 +154,8 @@ def main():
 
     client.on_connect = on_connect
     client.on_message = on_message
+    client.on_disconnect = on_disconnect
+
     try:
         client.connect(broker, port, keepalive=ka)
     except Exception as e:
