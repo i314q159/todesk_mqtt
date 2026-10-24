@@ -55,14 +55,24 @@ LOG = None
 DEV_ID = ""
 
 
+# 双写：屏幕（rospy）+ 文件（log/todesk_mqtt.log）
 def _log(level, msg):
-    # 双写：屏幕（rospy）+ 文件（log/todesk_mqtt.log）
+    log_map = {
+        "debug": ("debug", "logdebug"),
+        "info": ("info", "loginfo"),
+        "warn": ("warning", "logwarn"),
+        "error": ("error", "logerr"),
+        "fatal": ("critical", "logfatal"),
+    }
+    if level not in log_map:
+        return
+
+    log_lv, rospy_lv = log_map[level]
     if LOG is not None:
-        getattr(LOG, level)(msg)
+        getattr(LOG, log_lv)(msg)
+
     tag = f"[dev={DEV_ID}] " if DEV_ID else ""
-    getattr(rospy, {"info": "loginfo", "warn": "logwarn", "error": "logerr"}[level])(
-        f"{tag}{msg}"
-    )
+    getattr(rospy, rospy_lv)(f"{tag}{msg}")
 
 
 def load_toml(cfg_path):
