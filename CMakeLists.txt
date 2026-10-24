@@ -13,12 +13,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-install(PROGRAMS
+catkin_install_python(PROGRAMS
   scripts/todesk_mqtt_node.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(FILES
-  scripts/config.toml
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
