@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 # todesk_mqtt_node.py
 
@@ -33,6 +33,7 @@ def _setup_file_log(dev_id=""):
     log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "log")
     os.makedirs(log_dir, exist_ok=True)
     import logging.handlers
+
     fh = logging.handlers.TimedRotatingFileHandler(
         os.path.join(log_dir, "todesk_mqtt.log"),
         when="midnight",
@@ -95,7 +96,7 @@ def on_message(client, userdata, msg):
         if action == "restart_todesk":
             _log("warn", f"Receive restart todeskd command seq={seq}")
             ret = subprocess.run(
-                ["sudo", "systemctl", "restart", "todeskd.service"],
+                ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
                 capture_output=True,
                 text=True,
             )
