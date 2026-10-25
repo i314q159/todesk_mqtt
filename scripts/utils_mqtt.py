@@ -34,7 +34,7 @@ def on_message(client, userdata, msg):
         if action == "restart_todesk":
             now = time.time()
             if now - last_run_ts < COOLDOWN:
-                utils_logger.log.info("todeskd.service restart cooldown")
+                utils_logger.log.warning("todeskd.service restart cooldown")
                 utils_logger.log_flush()
                 return
 
@@ -46,7 +46,7 @@ def on_message(client, userdata, msg):
             utils_logger.log_flush()
 
     except Exception as e:
-        utils_logger.log.info(f"on_message err: {e}")
+        utils_logger.log.error(f"on_message err: {e}")
         utils_logger.log_flush()
 
 
