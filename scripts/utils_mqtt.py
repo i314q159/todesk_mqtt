@@ -21,7 +21,6 @@ def on_connect(client, userdata, flags, reason_code, properties):
     client.subscribe(userdata["sub_topic"], qos=1)
 
 
-# TODO - 执行命令操作，函数封装
 # TODO - 服务端拿到返回的 seq，幂等
 def on_message(client, userdata, msg):
     # seq = 0
