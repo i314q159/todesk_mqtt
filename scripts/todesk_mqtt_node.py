@@ -20,7 +20,7 @@ import rospkg
 def main():
     rospy.init_node("todesk_mqtt_node")
 
-    utils_logger.init_log_dir()
+    log = utils_logger.init_log_dir()
 
     cfg_path = utils_path.get_cfg_path(utils_path.get_pkg_path())
 

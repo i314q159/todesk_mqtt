@@ -3,6 +3,9 @@ import threading
 import subprocess
 import time
 
+import utils_logger
+
+
 import paho.mqtt.client as mqtt
 
 # 冷却锁 5 秒
@@ -31,18 +34,20 @@ def on_message(client, userdata, msg):
         if action == "restart_todesk":
             now = time.time()
             if now - last_run_ts < COOLDOWN:
-                print("COOLDOWN")
+                utils_logger.log.info("todeskd.service restart cooldown")
+                utils_logger.log_flush()
                 return
 
             threading.Thread(target=restart_todesk, daemon=True).start()
 
             last_run_ts = now
-            
-            print("todeskd.service restart trigger")
 
+            utils_logger.log.info("todeskd.service restart trigger")
+            utils_logger.log_flush()
 
     except Exception as e:
-        print(f"on_message err: {e}")
+        utils_logger.log.info(f"on_message err: {e}")
+        utils_logger.log_flush()
 
 
 def on_disconnect(client, userdata, flags, reason_code, properties):
