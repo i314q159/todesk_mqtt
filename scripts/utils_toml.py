@@ -1,8 +1,15 @@
 import os
-import tomllib
+import sys
 from dataclasses import dataclass
+from typing import Optional
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
+# TODO - 测试多网卡设备
 @dataclass
 class MqttConfig:
     dev_id: str
@@ -22,7 +29,7 @@ class AppConfig:
     mqtt: MqttConfig
 
 
-def load_toml(cfg_path: str) -> AppConfig | None:
+def load_toml(cfg_path: str) -> Optional[AppConfig]:
     if not os.path.exists(cfg_path):
         return None
     try:

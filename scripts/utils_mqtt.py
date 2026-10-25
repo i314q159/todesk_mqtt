@@ -10,6 +10,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
     client.subscribe(userdata["sub_topic"], qos=1)
 
 
+# TODO - 执行命令操作，函数封装
 def on_message(client, userdata, msg):
     try:
         payload = msg.payload.decode("utf-8", errors="ignore")
@@ -23,6 +24,7 @@ def on_disconnect(client, userdata, flags, reason_code, properties):
         print(f"disconnect unexpected, rc={reason_code.value}")
 
 
+# TLS 支持
 def init_client(dev_id, user, password):
     sub_topic = f"cmd/device/{dev_id}/todesk"
     pub_topic = f"state/device/{dev_id}/todesk"
