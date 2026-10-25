@@ -1,6 +1,13 @@
 import json
+import threading
 import subprocess
+import time
+
 import paho.mqtt.client as mqtt
+
+# 冷却锁 5 秒
+last_run_ts = 0
+COOLDOWN = 5
 
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -12,18 +19,24 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
 
 # TODO - 执行命令操作，函数封装
+# TODO - 服务端拿到返回的 seq，幂等
 def on_message(client, userdata, msg):
-    seq = 0
+    # seq = 0
+    global last_run_ts
     try:
         data = json.loads(msg.payload.decode("utf-8"))
         action = data.get("action")
-        seq = data.get("seq", 0)
+        # seq = data.get("seq", 0)
 
         if action == "restart_todesk":
-            subprocess.run(
-                # ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
-                ["echo", "todeskd.service"],
-            )
+            now = time.time()
+            if now - last_run_ts < COOLDOWN:
+                print("COOLDOWN")
+                return
+
+            threading.Thread(target=restart_todesk, daemon=True).start()
+
+            last_run_ts = now
 
     except Exception as e:
         print(f"on_message err: {e}")
@@ -32,6 +45,12 @@ def on_message(client, userdata, msg):
 def on_disconnect(client, userdata, flags, reason_code, properties):
     if reason_code.value != 0:
         print(f"disconnect unexpected, rc={reason_code.value}")
+
+
+def restart_todesk():
+    subprocess.run(
+        ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
+    )
 
 
 # TLS 支持
