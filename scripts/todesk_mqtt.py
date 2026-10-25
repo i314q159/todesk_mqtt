@@ -1,0 +1,33 @@
+import os
+
+# import scripts.utils_toml as utils_toml
+# import scripts.utils_mqtt as utils_mqtt
+
+import utils_toml
+import utils_mqtt
+
+
+def main():
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    cfg_file = os.path.join(script_dir, "config.toml")
+
+    cfg = utils_toml.load_toml(cfg_file)
+    mqtt = cfg.mqtt
+
+    client = utils_mqtt.init_client(
+        dev_id=mqtt.dev_id, user=mqtt.user, password=mqtt.password
+    )
+
+    client.connect(
+        host=mqtt.host,
+        port=mqtt.port,
+        keepalive=mqtt.keepalive,
+        # bind_address=mqtt.bind_address,
+    )
+
+    client.loop_start()
+
+
+if __name__ == "__main__":
+    main()

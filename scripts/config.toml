@@ -1,11 +1,13 @@
 [mqtt]
 dev_id = "qsc_001"
 
-# test
-broker = "127.0.0.1"
-port = 1883
-
 # server auth
 user = ""
 pass = ""
+
+# mqtt connect
+host = "127.0.0.1"
+port = "8883"
 keepalive = 60
+bind_address = ""
+bind_port = ""
