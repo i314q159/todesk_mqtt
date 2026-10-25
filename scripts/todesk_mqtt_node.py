@@ -12,6 +12,7 @@ import utils_toml
 import utils_mqtt
 import utils_path
 import utils_logger
+import utils_network
 
 import rospy
 import rospkg
@@ -27,6 +28,12 @@ def main():
     cfg = utils_toml.load_toml(cfg_path)
     mqtt = cfg.mqtt
 
+    iface_name, local_ip = utils_network.find_192_168_1_x_ip()
+
+    if local_ip == None:
+        rospy.logerr("192.168.1.x not found, node exit")
+        sys.exit(1)
+
     client = utils_mqtt.init_client(
         dev_id=mqtt.dev_id, user=mqtt.user, password=mqtt.password
     )
@@ -35,7 +42,7 @@ def main():
         host=mqtt.host,
         port=mqtt.port,
         keepalive=mqtt.keepalive,
-        # bind_address=mqtt.bind_address,
+        bind_address=local_ip,
     )
 
     client.loop_start()

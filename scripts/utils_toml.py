@@ -20,7 +20,7 @@ class MqttConfig:
     host: str
     port: int
     keepalive: int
-    bind_address: str
+    # bind_address: str
     # bind_port: int
 
 
@@ -46,7 +46,7 @@ def load_toml(cfg_path: str) -> Optional[AppConfig]:
         host=str(mqtt_raw.get("host", "")).strip(),
         port=int(mqtt_raw.get("port", 8883)),
         keepalive=int(mqtt_raw.get("keepalive", 60)),
-        bind_address=str(mqtt_raw.get("bind_address", "")).strip(),
+        # bind_address=str(mqtt_raw.get("bind_address", "")).strip(),
         # bind_port=int(mqtt_raw.get("bind_port", 8888)),
     )
     return AppConfig(mqtt=mqtt_cfg)
