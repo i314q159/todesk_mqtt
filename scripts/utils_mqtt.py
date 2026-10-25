@@ -37,6 +37,9 @@ def on_message(client, userdata, msg):
             threading.Thread(target=restart_todesk, daemon=True).start()
 
             last_run_ts = now
+            
+            print("todeskd.service restart trigger")
+
 
     except Exception as e:
         print(f"on_message err: {e}")
@@ -50,6 +53,8 @@ def on_disconnect(client, userdata, flags, reason_code, properties):
 def restart_todesk():
     subprocess.run(
         ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
 
