@@ -1,4 +1,5 @@
 import json
+import subprocess
 import paho.mqtt.client as mqtt
 
 
@@ -12,11 +13,20 @@ def on_connect(client, userdata, flags, reason_code, properties):
 
 # TODO - 执行命令操作，函数封装
 def on_message(client, userdata, msg):
+    seq = 0
     try:
-        payload = msg.payload.decode("utf-8", errors="ignore")
-        print(f"recv [{msg.topic}]: {payload}")
+        data = json.loads(msg.payload.decode("utf-8"))
+        action = data.get("action")
+        seq = data.get("seq", 0)
+
+        if action == "restart_todesk":
+            subprocess.run(
+                # ["sudo", "/usr/bin/systemctl", "restart", "todeskd.service"],
+                ["echo", "todeskd.service"],
+            )
+
     except Exception as e:
-        print(f"on_message decode err: {e}")
+        print(f"on_message err: {e}")
 
 
 def on_disconnect(client, userdata, flags, reason_code, properties):
