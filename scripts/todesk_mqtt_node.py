@@ -12,13 +12,15 @@ import utils_toml
 import utils_mqtt
 
 import rospy
+import rospkg
 
 
 def main():
     rospy.init_node("todesk_mqtt_node")
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    cfg_file = os.path.join(script_dir, "config.toml")
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    pkg_path = rospkg.RosPack().get_path("todesk_mqtt")
+    cfg_file = os.path.join(pkg_path, "config.toml")
 
     cfg = utils_toml.load_toml(cfg_file)
     mqtt = cfg.mqtt
