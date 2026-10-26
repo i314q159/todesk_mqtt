@@ -30,13 +30,8 @@ class AppConfig:
 
 
 def load_toml(cfg_path: str) -> Optional[AppConfig]:
-    if not os.path.exists(cfg_path):
-        return None
-    try:
-        with open(cfg_path, "rb") as f:
-            raw = tomllib.load(f)
-    except Exception:
-        return None
+    with open(cfg_path, "rb") as f:
+        raw = tomllib.load(f)
 
     mqtt_raw = raw.get("mqtt", {})
     mqtt_cfg = MqttConfig(
