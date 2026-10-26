@@ -37,6 +37,17 @@ state/device/qsc_001/todesk
 }
 ```
 
+seq 重复
+
+```json
+{
+"seq": 1001,
+"action": "restart_todesk",
+"status": "rejected",
+"reason": "duplicate",
+}
+```
+
 冷却拦截
 
 多个不同的 seq 发来，5 秒冷静期，用于todeskd重启的时间
