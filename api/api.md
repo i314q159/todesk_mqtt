@@ -3,14 +3,11 @@
 ## dev_id
 
 ```toml
-# 主机
-dev_id = "qsc_001_master"
+# 扫地车
+dev_id = "qsc_001"
 
-# 从机
-dev_id = "qsc_001_slave"
-
-# 单主机
-dev_id = "qsc_001_single"
+# 洗涤车
+dev_id = "xdc_002"
 ```
 
 ## 服务器下发机器人

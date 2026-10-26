@@ -1,15 +1,6 @@
 [mqtt]
 dev_id = "qsc_001"
 
-# 主机
-# dev_id = "qsc_001_master"
-
-# 从机
-# dev_id = "qsc_001_slave"
-
-# 单主机
-# dev_id = "qsc_001_single"
-
 
 # server auth
 user = ""
