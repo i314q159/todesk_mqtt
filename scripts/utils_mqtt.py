@@ -19,8 +19,10 @@ def on_connect(client, userdata, flags, reason_code, properties):
         utils_logger.log.error(f"connect failed: {reason_code}")
         utils_logger.log_flush()
         return
+
     utils_logger.log.info(f"MQTT connected, sub: {userdata['sub_topic']}")
     utils_logger.log_flush()
+
     client.subscribe(userdata["sub_topic"], qos=1)
 
 
@@ -83,8 +85,11 @@ def on_message(client, userdata, msg):
 
 
 def on_disconnect(client, userdata, flags, reason_code, properties):
-    if reason_code.value != 0:
-        utils_logger.log.warn(f"disconnect unexpected, rc={reason_code.value}")
+    if reason_code.is_failure:
+        utils_logger.log.error(f"disconnect unexpected, rc={reason_code.value}")
+        utils_logger.log_flush()
+    else:
+        utils_logger.log.info(f"mqtt disconnected normally")
         utils_logger.log_flush()
 
 
