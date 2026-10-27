@@ -1,3 +1,6 @@
 <launch>
-  <node pkg="todesk_mqtt" type="todesk_mqtt_node.py" name="todesk_mqtt" output="screen"/>
+  <node pkg="todesk_mqtt" type="todesk_mqtt_node.py" name="todesk_mqtt"
+    output="screen"
+    respawn="true"
+    respawn_delay="3.0" />
 </launch>
