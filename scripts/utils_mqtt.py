@@ -2,16 +2,22 @@ import json
 import threading
 import subprocess
 import time
+
 import utils_logger
+
+from collections import OrderedDict
+from threading import Lock
+
 import paho.mqtt.client as mqtt
 
 # 冷却时间，单位秒
 COOLDOWN = 5
 last_run_ts = 0
+
 # 幂等缓存：记录已经处理过的 seq
-handled_seq = set()
-# 最大缓存条数，防止无限膨胀
+handled_seq = OrderedDict()
 MAX_SEQ_CACHE = 200
+seq_lock = Lock()
 
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -34,24 +40,25 @@ def on_message(client, userdata, msg):
         seq = data.get("seq")
 
         if seq is not None:
-            if seq in handled_seq:
-                utils_logger.log.warning(f"duplicate seq skip: {seq}")
-                utils_logger.log_flush()
+            with seq_lock:
+                if seq in handled_seq:
+                    utils_logger.log.warning(f"duplicate seq skip: {seq}")
+                    utils_logger.log_flush()
 
-                ack = json.dumps(
-                    {
-                        "seq": seq,
-                        "action": action,
-                        "status": "rejected",
-                        "reason": "duplicate",
-                    }
-                )
-                client.publish(userdata["pub_topic"], ack, qos=1)
-                return
+                    ack = json.dumps(
+                        {
+                            "seq": seq,
+                            "action": action,
+                            "status": "rejected",
+                            "reason": "duplicate",
+                        }
+                    )
+                    client.publish(userdata["pub_topic"], ack, qos=1)
+                    return
 
-            handled_seq.add(seq)
-            if len(handled_seq) > MAX_SEQ_CACHE:
-                handled_seq.pop()
+                handled_seq[seq] = None
+                if len(handled_seq) > MAX_SEQ_CACHE:
+                    handled_seq.popitem(last=False)
 
         if action == "restart_todesk":
             now = time.time()
