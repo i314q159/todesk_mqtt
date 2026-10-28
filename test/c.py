@@ -37,7 +37,7 @@ def on_message(client, userdata, msg):
 
     # payload 中也可以传 dev_id
     log.info(
-        f"topic: {msg.topic} | dev_id: {msg.topic.split("/")[2]} | payload: {payload}",
+        f"c receiver | topic: {msg.topic} | dev_id: {msg.topic.split("/")[2]} | payload: {payload}",
     )
 
 
